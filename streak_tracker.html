@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0d10" />
+  <title>Мои серии</title>
+  <style>
+    :root {
+      --page: #0b0d10;
+      --panel: #12161c;
+      --panel-2: #171c23;
+      --text: #f5f7fb;
+      --muted: #9aa4b2;
+      --line: rgba(255,255,255,.09);
+      --good: #38d996;
+      --bad: #ff5c68;
+    }
+
+    * { box-sizing: border-box; }
+    html { color-scheme: dark; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% -10%, rgba(255,255,255,.07), transparent 28rem),
+        radial-gradient(circle at 92% 4%, rgba(255,255,255,.035), transparent 22rem),
+        var(--page);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      padding: max(18px, env(safe-area-inset-top)) 14px max(28px, env(safe-area-inset-bottom));
+    }
+
+    button, input { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+
+    .app {
+      width: min(760px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: 10px 4px 18px;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 8vw, 56px);
+      line-height: .98;
+      letter-spacing: -.04em;
+    }
+
+    .date {
+      margin-top: 12px;
+      color: #c4cbd6;
+      font-size: 15px;
+    }
+
+    .quote {
+      margin-top: 14px;
+      color: #e9edf4;
+      font-size: 16px;
+      line-height: 1.45;
+      max-width: 620px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 0 0 14px;
+    }
+
+    .summary-card {
+      background: rgba(255,255,255,.045);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 13px 14px;
+      min-height: 78px;
+    }
+
+    .summary-value {
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
+      line-height: 1.2;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .task {
+      --base: #777;
+      --bg1: #3d4148;
+      --bg2: #292d33;
+      --glow: rgba(255,255,255,.05);
+      position: relative;
+      min-height: 230px;
+      overflow: hidden;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(145deg, var(--bg1), var(--bg2));
+      box-shadow: 0 10px 28px rgba(0,0,0,.23), 0 0 30px var(--glow);
+      padding: 17px;
+      transition: background .25s ease, box-shadow .25s ease, transform .15s ease, border-color .25s ease;
+    }
+
+    .task::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      right: -80px;
+      top: -90px;
+      border-radius: 50%;
+      background: var(--base);
+      opacity: .13;
+      filter: blur(5px);
+      pointer-events: none;
+    }
+
+    .task.zero {
+      --bg1: #3a3f46 !important;
+      --bg2: #252a30 !important;
+      --glow: rgba(0,0,0,0) !important;
+      border-color: rgba(255,255,255,.08);
+    }
+
+    .task.done-today {
+      border-color: rgba(255,255,255,.28);
+    }
+
+    .task-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .task-name {
+      font-size: 17px;
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      max-width: 78%;
+      text-wrap: balance;
+    }
+
+    .badge {
+      min-width: 36px;
+      height: 36px;
+      padding: 0 7px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.14);
+      font-size: 21px;
+      backdrop-filter: blur(8px);
+    }
+
+    .streak-wrap {
+      margin-top: 25px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .streak-number {
+      font-size: 48px;
+      line-height: .9;
+      font-weight: 900;
+      letter-spacing: -.06em;
+      text-shadow: 0 2px 20px rgba(0,0,0,.25);
+    }
+
+    .streak-label {
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,255,255,.83);
+    }
+
+    .meta {
+      min-height: 34px;
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.35;
+      color: rgba(255,255,255,.72);
+      position: relative;
+      z-index: 1;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 13px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .mark-btn {
+      height: 48px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 15px;
+      color: #fff;
+      background: rgba(0,0,0,.24);
+      font-size: 23px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform .12s ease, background .18s ease, border-color .18s ease;
+    }
+
+    .mark-btn:active { transform: scale(.97); }
+    .mark-btn.no.active {
+      background: rgba(130, 19, 30, .72);
+      border-color: rgba(255,120,130,.6);
+    }
+    .mark-btn.yes.active {
+      background: rgba(10, 104, 68, .78);
+      border-color: rgba(102,255,188,.6);
+    }
+
+    .tip {
+      margin: 14px 1px 0;
+      color: #7f8997;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    details.tools {
+      margin-top: 14px;
+      background: rgba(255,255,255,.035);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    details.tools summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 14px 16px;
+      font-weight: 700;
+      color: #cfd5de;
+    }
+
+    details.tools summary::-webkit-details-marker { display: none; }
+    .tools-body {
+      border-top: 1px solid var(--line);
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .tool-btn {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      min-height: 42px;
+      padding: 8px 10px;
+      background: #171b21;
+      color: #e6eaf0;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tool-btn.danger { color: #ff9ca4; }
+    #importFile { display: none; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: max(22px, env(safe-area-inset-bottom));
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      pointer-events: none;
+      background: rgba(15,18,23,.94);
+      border: 1px solid rgba(255,255,255,.13);
+      color: #f5f7fb;
+      padding: 11px 14px;
+      border-radius: 13px;
+      font-size: 13px;
+      box-shadow: 0 10px 32px rgba(0,0,0,.35);
+      transition: opacity .2s ease, transform .2s ease;
+      z-index: 50;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-width: 560px) {
+      .grid { grid-template-columns: 1fr; }
+      .task { min-height: 218px; }
+      .summary { gap: 6px; }
+      .summary-card { padding: 11px; min-height: 72px; }
+      .summary-value { font-size: 20px; }
+      .summary-label { font-size: 11px; }
+      .tools-body { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="eyebrow">Streak tracker</div>
+      <h1>Мои серии</h1>
+      <div class="date" id="dateText"></div>
+      <div class="quote">Сегодня не нужно быть идеальным. Нужно просто не отдавать день случайным вещам.</div>
+    </section>
+
+    <section class="summary" aria-label="Сводка">
+      <div class="summary-card">
+        <div class="summary-value" id="doneToday">0/8</div>
+        <div class="summary-label">ежедневных задач сегодня</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-value" id="bestStreak">0</div>
+        <div class="summary-label">лучшая активная серия</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-value" id="trainingAgo">—</div>
+        <div class="summary-label">с последней тренировки</div>
+      </div>
+    </section>
+
+    <section class="grid" id="taskGrid"></section>
+
+    <p class="tip">
+      Повторное нажатие на выбранную кнопку снимает сегодняшнюю отметку. Для ежедневных задач пропущенный день обнуляет серию. Для тренировок дни без тренировки не вредят серии, пока между двумя ✅ не прошло больше 7 дней.
+    </p>
+
+    <details class="tools">
+      <summary>Резервная копия и данные</summary>
+      <div class="tools-body">
+        <button class="tool-btn" id="exportBtn">Экспортировать JSON</button>
+        <button class="tool-btn" id="importBtn">Импортировать JSON</button>
+        <button class="tool-btn danger" id="resetBtn">Очистить всё</button>
+        <input type="file" id="importFile" accept="application/json,.json" />
+      </div>
+    </details>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const STORAGE_KEY = 'streakTracker_v1';
+
+      const TASKS = [
+        { id: 'exercise', name: 'Зарядка', color: '#8BE28B', type: 'daily' },
+        { id: 'workout', name: 'Тренировки', color: '#7D1018', type: 'training' },
+        { id: 'bible', name: 'Библия', color: '#D6A928', type: 'daily' },
+        { id: 'book', name: '2 страницы книги', color: '#2867D6', type: 'daily' },
+        { id: 'english', name: 'English', color: '#B33AD6', type: 'daily' },
+        { id: 'serbian', name: 'Srpski', color: '#42BDE8', type: 'daily' },
+        { id: 'incomeExpense', name: 'Таблица Д/Р', color: '#1A9B55', type: 'daily' },
+        { id: 'students', name: 'Таблица учеников', color: '#4D197C', type: 'daily' },
+        { id: 'habits', name: 'Таблица привычек', color: '#0D0D0F', type: 'daily' }
+      ];
+
+      const state = loadState();
+      let renderedDateKey = dateKey(new Date());
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return { version: 1, history: {} };
+          const parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== 'object') throw new Error('bad state');
+          parsed.history = parsed.history || {};
+          return parsed;
+        } catch {
+          return { version: 1, history: {} };
+        }
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function taskHistory(id) {
+        if (!state.history[id]) state.history[id] = {};
+        return state.history[id];
+      }
+
+      function pad2(n) { return String(n).padStart(2, '0'); }
+
+      function dateKey(d) {
+        return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+      }
+
+      function fromDateKey(key) {
+        const [y, m, d] = key.split('-').map(Number);
+        return new Date(y, m - 1, d, 12, 0, 0, 0);
+      }
+
+      function addDays(key, amount) {
+        const d = fromDateKey(key);
+        d.setDate(d.getDate() + amount);
+        return dateKey(d);
+      }
+
+      function diffDays(aKey, bKey) {
+        const a = fromDateKey(aKey);
+        const b = fromDateKey(bKey);
+        return Math.round((b - a) / 86400000);
+      }
+
+      function dailyStreak(id) {
+        const history = taskHistory(id);
+        const today = dateKey(new Date());
+
+        if (history[today] === 0) return 0;
+
+        let cursor = history[today] === 1 ? today : addDays(today, -1);
+        if (history[cursor] !== 1) return 0;
+
+        let count = 0;
+        while (history[cursor] === 1) {
+          count += 1;
+          cursor = addDays(cursor, -1);
+        }
+        return count;
+      }
+
+      function successfulTrainingDates() {
+        const history = taskHistory('workout');
+        const today = dateKey(new Date());
+        return Object.keys(history)
+          .filter(k => history[k] === 1 && k <= today)
+          .sort();
+      }
+
+      function trainingStreak() {
+        const dates = successfulTrainingDates();
+        if (!dates.length) return 0;
+
+        const today = dateKey(new Date());
+        const last = dates[dates.length - 1];
+        if (diffDays(last, today) > 7) return 0;
+
+        let count = 1;
+        for (let i = dates.length - 1; i > 0; i--) {
+          const gap = diffDays(dates[i - 1], dates[i]);
+          if (gap <= 7) count += 1;
+          else break;
+        }
+        return count;
+      }
+
+      function getStreak(task) {
+        return task.type === 'training' ? trainingStreak() : dailyStreak(task.id);
+      }
+
+      function milestone(streak) {
+        if (streak >= 21) return { emoji: '❤️‍🔥', text: '21+' };
+        if (streak >= 15) return { emoji: '🔥', text: '15+' };
+        if (streak >= 10) return { emoji: '⚡', text: '10+' };
+        if (streak >= 5) return { emoji: '😎', text: '5+' };
+        return { emoji: '·', text: '' };
+      }
+
+      function nextMilestone(streak) {
+        if (streak < 5) return `До 😎 ещё ${5 - streak}`;
+        if (streak < 10) return `До ⚡ ещё ${10 - streak}`;
+        if (streak < 15) return `До 🔥 ещё ${15 - streak}`;
+        if (streak < 21) return `До ❤️‍🔥 ещё ${21 - streak}`;
+        return 'Максимальная серия — держи темп';
+      }
+
+      function hexToRgb(hex) {
+        const s = hex.replace('#', '');
+        return {
+          r: parseInt(s.slice(0, 2), 16),
+          g: parseInt(s.slice(2, 4), 16),
+          b: parseInt(s.slice(4, 6), 16)
+        };
+      }
+
+      function rgbToHex({r,g,b}) {
+        return '#' + [r,g,b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+      }
+
+      function mixHex(a, b, t) {
+        const A = hexToRgb(a);
+        const B = hexToRgb(b);
+        return rgbToHex({
+          r: A.r + (B.r - A.r) * t,
+          g: A.g + (B.g - A.g) * t,
+          b: A.b + (B.b - A.b) * t
+        });
+      }
+
+      function rgbaFromHex(hex, alpha) {
+        const c = hexToRgb(hex);
+        return `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`;
+      }
+
+      function cardColors(task, streak) {
+        if (streak <= 0) {
+          return { bg1: '#3a3f46', bg2: '#252a30', glow: 'rgba(0,0,0,0)' };
+        }
+        const level = Math.min(streak, 21) / 21;
+        const strength = 0.30 + level * 0.70;
+        const gray1 = '#59616b';
+        const gray2 = '#343941';
+        return {
+          bg1: mixHex(gray1, task.color, strength),
+          bg2: mixHex(gray2, task.color, Math.max(0.22, strength * 0.78)),
+          glow: rgbaFromHex(task.color, 0.06 + level * 0.22)
+        };
+      }
+
+      function pluralDays(n) {
+        const mod10 = n % 10;
+        const mod100 = n % 100;
+        if (mod10 === 1 && mod100 !== 11) return 'день';
+        if ([2,3,4].includes(mod10) && ![12,13,14].includes(mod100)) return 'дня';
+        return 'дней';
+      }
+
+      function pluralWorkouts(n) {
+        const mod10 = n % 10;
+        const mod100 = n % 100;
+        if (mod10 === 1 && mod100 !== 11) return 'тренировка';
+        if ([2,3,4].includes(mod10) && ![12,13,14].includes(mod100)) return 'тренировки';
+        return 'тренировок';
+      }
+
+      function trainingMeta() {
+        const dates = successfulTrainingDates();
+        if (!dates.length) return 'Пока нет выполненных тренировок';
+        const today = dateKey(new Date());
+        const last = dates[dates.length - 1];
+        const ago = diffDays(last, today);
+        if (ago > 7) return `Последняя ✅ была ${ago} ${pluralDays(ago)} назад — серия сброшена`;
+        const remain = 7 - ago;
+        if (ago === 0) return 'Тренировка выполнена сегодня';
+        if (remain === 0) return 'Сегодня последний день, чтобы сохранить серию';
+        return `Последняя ✅: ${ago} ${pluralDays(ago)} назад · запас ${remain} ${pluralDays(remain)}`;
+      }
+
+      function dailyMeta(task, streak, todayStatus) {
+        if (todayStatus === 1) return 'Сегодня выполнено ✓';
+        if (todayStatus === 0) return 'Сегодня отмечено невыполнение — серия сброшена';
+        if (streak > 0) return 'Сегодня ещё не отмечено';
+        return 'Серия пока не начата';
+      }
+
+      function setMark(task, value) {
+        const today = dateKey(new Date());
+        const history = taskHistory(task.id);
+        if (history[today] === value) delete history[today];
+        else history[today] = value;
+        saveState();
+        render();
+      }
+
+      function render() {
+        renderedDateKey = dateKey(new Date());
+        const today = renderedDateKey;
+        const dateEl = document.getElementById('dateText');
+        const now = new Date();
+        dateEl.textContent = now.toLocaleDateString('ru-RU', {
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+
+        const grid = document.getElementById('taskGrid');
+        grid.innerHTML = '';
+
+        let dailyDone = 0;
+        let best = 0;
+
+        TASKS.forEach(task => {
+          const history = taskHistory(task.id);
+          const todayStatus = history[today];
+          const streak = getStreak(task);
+          best = Math.max(best, streak);
+          if (task.type === 'daily' && todayStatus === 1) dailyDone += 1;
+
+          const colors = cardColors(task, streak);
+          const mark = milestone(streak);
+          const card = document.createElement('article');
+          card.className = `task${streak === 0 ? ' zero' : ''}${todayStatus === 1 ? ' done-today' : ''}`;
+          card.style.setProperty('--base', task.color);
+          card.style.setProperty('--bg1', colors.bg1);
+          card.style.setProperty('--bg2', colors.bg2);
+          card.style.setProperty('--glow', colors.glow);
+
+          const streakLabel = task.type === 'training'
+            ? `${pluralWorkouts(streak)} в серии`
+            : `${pluralDays(streak)} подряд`;
+          const meta = task.type === 'training'
+            ? trainingMeta()
+            : dailyMeta(task, streak, todayStatus);
+
+          card.innerHTML = `
+            <div class="task-head">
+              <div class="task-name"></div>
+              <div class="badge" title="${mark.text || 'Следующая награда после 5'}">${mark.emoji}</div>
+            </div>
+            <div class="streak-wrap">
+              <div class="streak-number">${streak}</div>
+              <div class="streak-label">${streakLabel}</div>
+            </div>
+            <div class="meta">${meta}<br>${nextMilestone(streak)}</div>
+            <div class="actions">
+              <button class="mark-btn no${todayStatus === 0 ? ' active' : ''}" aria-label="Не выполнено сегодня">✕</button>
+              <button class="mark-btn yes${todayStatus === 1 ? ' active' : ''}" aria-label="Выполнено сегодня">✓</button>
+            </div>
+          `;
+          card.querySelector('.task-name').textContent = task.name;
+          card.querySelector('.mark-btn.no').addEventListener('click', () => setMark(task, 0));
+          card.querySelector('.mark-btn.yes').addEventListener('click', () => setMark(task, 1));
+          grid.appendChild(card);
+        });
+
+        document.getElementById('doneToday').textContent = `${dailyDone}/8`;
+        document.getElementById('bestStreak').textContent = best;
+
+        const dates = successfulTrainingDates();
+        const trainingAgo = document.getElementById('trainingAgo');
+        if (!dates.length) {
+          trainingAgo.textContent = '—';
+        } else {
+          const ago = diffDays(dates[dates.length - 1], today);
+          trainingAgo.textContent = ago === 0 ? 'сегодня' : `${ago} дн.`;
+        }
+      }
+
+      function toast(message) {
+        const el = document.getElementById('toast');
+        el.textContent = message;
+        el.classList.add('show');
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => el.classList.remove('show'), 1800);
+      }
+
+      document.getElementById('exportBtn').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `streak-backup-${dateKey(new Date())}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        toast('Резервная копия сохранена');
+      });
+
+      document.getElementById('importBtn').addEventListener('click', () => {
+        document.getElementById('importFile').click();
+      });
+
+      document.getElementById('importFile').addEventListener('change', async (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        try {
+          const parsed = JSON.parse(await file.text());
+          if (!parsed || typeof parsed !== 'object' || !parsed.history || typeof parsed.history !== 'object') {
+            throw new Error('Неверный формат');
+          }
+          state.version = 1;
+          state.history = parsed.history;
+          saveState();
+          render();
+          toast('Данные восстановлены');
+        } catch {
+          alert('Не удалось импортировать файл. Проверьте, что это резервная копия этого трекера.');
+        } finally {
+          event.target.value = '';
+        }
+      });
+
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        const ok = confirm('Удалить все отметки и серии? Это действие нельзя отменить без резервной копии.');
+        if (!ok) return;
+        state.history = {};
+        saveState();
+        render();
+        toast('Все данные очищены');
+      });
+
+      setInterval(() => {
+        const nowKey = dateKey(new Date());
+        if (nowKey !== renderedDateKey) render();
+      }, 30000);
+
+      render();
+    })();
+  </script>
+</body>
+</html>
