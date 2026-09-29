@@ -574,7 +574,7 @@
       if(streak > best) best = streak;
       if(streak > 0) active++;
 
-      const progress = Math.min(streak, 21) / 21;
+     const progress = Math.min(streak, 66) / 66;
       const accent = streak > 0 ? mixWithWhite(habit.color, progress) : '#B8BBC3';
 
       const card = document.createElement('article');
@@ -603,10 +603,20 @@
 
         <div class="below">
           <div class="badges">
-            ${milestones.map(m => `
-              <span class="badge ${streak>=m.n ? 'on':''}" title="${m.title}">
-                ${m.emoji}
-              </span>`).join('')}
+         ${(() => {
+  const currentMilestone = [...milestones]
+    .reverse()
+    .find(m => streak >= m.n);
+
+  return milestones.map(m => `
+    <span
+      class="badge ${currentMilestone && currentMilestone.n === m.n ? 'on' : ''}"
+      title="${m.title}"
+    >
+      ${m.emoji}
+    </span>
+  `).join('');
+})()}
           </div>
 
           <div class="actions">
